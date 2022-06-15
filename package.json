@@ -1,0 +1,22 @@
+{
+  "name": "workableassignment",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kSiasios/WorkableAssignment.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kSiasios/WorkableAssignment/issues"
+  },
+  "homepage": "https://github.com/kSiasios/WorkableAssignment#readme",
+  "devDependencies": {
+    "cypress": "^10.1.0"
+  }
+}
