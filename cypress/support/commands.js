@@ -23,3 +23,26 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+
+// Cypress.Commands.add("dragdrop", ($dragelement, drop) => {
+//   //   cy.get(drag).should("exist").get(drop).should("exist");
+//   cy.get(drop).should("exist");
+
+//   //   const draggable = Cypress.$(darg)[0];
+//   const draggable = $dragelement;
+//   const droppable = Cypress.$(drop)[0];
+
+//   const coords = droppable.getBoundingClientRect();
+//   draggable.dispatchEvent(new MouseEvent("mousedown"));
+//   draggable.dispatchEvent(
+//     new MouseEvent("mousemove", { clientX: 10, clientY: 0 })
+//   );
+//   draggable.dispatchEvent(
+//     new MouseEvent("mousemove", {
+//       clientX: coords.left + 10,
+//       clientY: coords.top + 10,
+//     })
+//   );
+//   draggable.dispatchEvent(new MouseEvent("mouseup"));
+//   return cy.get(drop);
+// });
