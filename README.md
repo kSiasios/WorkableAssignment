@@ -17,3 +17,5 @@ Select your preferred browser and press Start E2E Testing button
 
 If all test were successful there should be no red assertions!
 ![Screenshot_20220617_120121](https://user-images.githubusercontent.com/76401229/174265505-ae63e1a4-6d2f-4828-ad18-13432dde6125.png)
+
+*Note that after the first run, any tests that sign up will fail to sign up since the email was used in the previous run. The test itself will not fail and will log in successfully.*
