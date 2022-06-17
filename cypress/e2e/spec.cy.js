@@ -16,7 +16,7 @@ describe("Test Sign Up with various inputs", () => {
 
   it("should sign up using all the form fields", () => {
     let _name = "John Doe";
-    let _email = "johndoe@example.com";
+    let _email = "johndoe@example_3.com";
     let _password = "john's secure password";
     let _company = "Workable";
     let _address = "Unknown Avenue 12";
@@ -34,6 +34,7 @@ describe("Test Sign Up with various inputs", () => {
 
     // submit form
     cy.get("button[type='submit']").click();
+    cy.wait(2000);
 
     // login
     cy.login({ email: _email, password: _password });
@@ -44,7 +45,7 @@ describe("Test Sign Up with various inputs", () => {
 
   it("should sign up using only some of the fields", () => {
     let _name = "Jane Doe";
-    let _email = "janedoe@example.com";
+    let _email = "janedoe@example_3.com";
     let _password = "jane's secure password";
     // fill name
     cy.get(".validate#fullName").type(_name, { force: true });
@@ -55,6 +56,8 @@ describe("Test Sign Up with various inputs", () => {
 
     // submit form
     cy.get("button[type='submit']").click();
+    cy.wait(2000);
+
     // login
     cy.login({ email: _email, password: _password });
     // Validate account creation
@@ -104,13 +107,46 @@ describe("Test Sign Up with various inputs", () => {
     });
   });
 
+  it("should attempt to sign up with and existing email", () => {
+    // let _name = "John Doe";
+    let _name = "kSiasios Test acount";
+    // let _email = "johndoe@example.com";
+    let _email = "ksiasiostest@example.com";
+    // let _password = "john's secure password";
+    let _password = "test account password";
+    let _company = "Workable";
+    let _address = "Unknown Avenue 12";
+
+    // fill name
+    cy.get(".validate#fullName").type(_name, { force: true });
+    // fill email
+    cy.get(".validate#email").type(_email, { force: true });
+    // fill password
+    cy.get(".validate#password").type(_password, { force: true });
+    // fill company
+    cy.get(".validate#company").type(_company, { force: true });
+    // fill address
+    cy.get(".validate#address").type(_address, { force: true });
+
+    // submit form
+    cy.get("button[type='submit']").click();
+    cy.wait(2000);
+
+    cy.get("input#email")
+      .siblings(".invalid-feedback")
+      .should("not.be.empty")
+      .and("have.text", `Email \`${_email}\` already exits`);
+  });
+
   describe("User Specific Tests", () => {
     let taskIndex = 0;
 
     beforeEach("Log In", () => {
       let user = {
-        email: "johndoe@example.com",
-        password: "john's secure password",
+        // email: "johndoe@example.com",
+        email: "ksiasiostest@example.com",
+        // password: "john's secure password",
+        password: "test account password",
       };
 
       cy.login(user);
@@ -210,7 +246,7 @@ describe("Test Sign Up with various inputs", () => {
       cy.get(".row")
         .eq(-2)
         .within(() => {
-          cy.get("span.card-title").last().should("contain", _newProjectName);
+          cy.get("span.card-title").should("contain", _newProjectName);
         });
       // #endregion
 
@@ -227,7 +263,7 @@ describe("Test Sign Up with various inputs", () => {
 
     it("should test task specific functions", () => {
       let projectName = createProject();
-      addTask(projectName);
+      let taskSummary = addTask(projectName);
       // validate task addition
       cy.get("#to_do_items").should("contain", taskSummary);
 
@@ -276,27 +312,29 @@ describe("Test Sign Up with various inputs", () => {
     it("should validate user's info", () => {
       cy.get("a#settings").click();
 
-      cy.get("input#fullName").should("have.value", "John Doe");
-      cy.get("input#email").should("have.value", "johndoe@example.com");
+      // cy.get("input#fullName").should("have.value", "John Doe");
+      cy.get("input#fullName").should("have.value", "kSiasios Test account");
+      // cy.get("input#email").should("have.value", "johndoe@example.com");
+      cy.get("input#email").should("have.value", "ksiasiostest@example.com");
       // cy.get("input#password").should("have.value", "BWqsD7m6miA8zhp");
       cy.get("input#company").should("have.value", "Workable");
       cy.get("input#address").should("have.value", "Unknown Avenue 12");
     });
 
     it("should test drag and drop to move tasks to different statuses", () => {
-      // let projectName = createProject("Test Project for Drag and Drop");
-      // let task1 = addTask(projectName);
-      // cy.get("a#dashboard").click();
-      // let task2 = addTask(projectName);
-      // cy.get("a#dashboard").click();
-      // let task3 = addTask(projectName);
-      // cy.get("a#dashboard").click();
-      // let task4 = addTask(projectName);
+      let projectName = createProject("Test Project for Drag and Drop");
+      let task1 = addTask(projectName);
+      cy.get("a#dashboard").click();
+      let task2 = addTask(projectName);
+      cy.get("a#dashboard").click();
+      let task3 = addTask(projectName);
+      cy.get("a#dashboard").click();
+      let task4 = addTask(projectName);
 
-      let projectName = "Test Project for Drag and Drop";
-      cy.contains(".card", projectName).within(() => {
-        cy.get("#btn_view_tasks").click();
-      });
+      // let projectName = "Test Project for Drag and Drop";
+      // cy.contains(".card", projectName).within(() => {
+      //   cy.get("#btn_view_tasks").click();
+      // });
 
       let id;
       cy.intercept({ method: "PUT", path: "/api/tasks/" }, (req) => {
@@ -322,21 +360,21 @@ describe("Test Sign Up with various inputs", () => {
       }
 
       dragDrop("[draggable='true']:nth-child(4)", "#in_progress_items");
-      // validate column in progress has task 3
+      // validate column in progress has task 4
       cy.get("#in_progress_items").within(() => {
-        cy.get(".card").should("have.length", 1).and("contain.text", "task 3");
+        cy.get(".card").should("have.length", 1).and("contain.text", "task 4");
       });
 
       dragDrop("[draggable='true']:nth-child(3)", "#in_review_items");
-      // validate column in review has task 2
+      // validate column in review has task 3
       cy.get("#in_review_items").within(() => {
-        cy.get(".card").should("have.length", 1).and("contain.text", "task 2");
+        cy.get(".card").should("have.length", 1).and("contain.text", "task 3");
       });
 
       dragDrop("[draggable='true']:nth-child(2)", "#done_items");
-      // validate column done has task 1
+      // validate column done has task 2
       cy.get("#done_items").within(() => {
-        cy.get(".card").should("have.length", 1).and("contain.text", "task 1");
+        cy.get(".card").should("have.length", 1).and("contain.text", "task 2");
       });
     });
 
@@ -354,8 +392,8 @@ describe("Test Sign Up with various inputs", () => {
       });
       // check that the sorting happened ("john's new task" should be before "john's new task 1")
       cy.get(".card-title").then((cards) => {
-        cy.wrap(cards).eq(0).should("have.text", "John's new task");
-        cy.wrap(cards).eq(1).should("have.text", "John's new task 1");
+        cy.wrap(cards).eq(0).should("have.text", "John's new task 1");
+        cy.wrap(cards).eq(1).should("have.text", "John's new task 2");
       });
       // search task by text (Search for "john's new task 2")
       cy.get("input#search").clear({ force: true }).type("2", { force: true });
@@ -456,20 +494,10 @@ describe("Test Sign Up with various inputs", () => {
         .siblings(".invalid-feedback")
         .should("not.be.empty")
         .and("have.text", "This field is required");
-      // cy.get(".invalid-feedback").each((cont) => {
-      //   cy.wrap(cont)
-      //     .should("not.be.empty")
-      //     .and("have.text", "This field is required");
-      // });
     });
 
-    it.only("should test errors upon task edition", () => {
+    it("should test errors upon task edition", () => {
       let projectName = "Test project for Edit";
-
-      // cy.contains(".card", projectName).within(() => {
-      //   cy.get("#btn_add_task").click();
-      //   cy.wait(500);
-      // });
 
       let taskSummary = addTask(
         projectName,
@@ -490,30 +518,33 @@ describe("Test Sign Up with various inputs", () => {
         .siblings(".invalid-feedback")
         .should("not.be.empty")
         .and("have.text", "This field is required");
+
       cy.get("textarea#description")
         .siblings(".invalid-feedback")
         .should("not.be.empty")
         .and("have.text", "This field is required");
+    });
 
-      // // cy.get("input#name").clear({ force: true });
-      // // cy.get("input#description").clear({ force: true });
-      // cy.get("button[type='submit']").click();
+    it("should reset user data", () => {
+      cy.wait(1000);
+      // delete projects
+      cy.get(".card").each((card) => {
+        cy.wrap(card).within(() => {
+          cy.get("a#delete_project").click();
+          cy.wait(500);
+        });
+      });
 
-      // // there should be errors for missing fields
-      // cy.get("input#summary")
-      //   .siblings(".invalid-feedback")
-      //   .should("not.be.empty")
-      //   .and("have.text", "This field is required");
+      // reset Address
+      cy.get("a#settings").click();
+      cy.wait(1000);
 
-      // cy.get("textarea#description")
-      //   .siblings(".invalid-feedback")
-      //   .should("not.be.empty")
-      //   .and("have.text", "This field is required");
-      // // cy.get(".invalid-feedback").each((cont) => {
-      // //   cy.wrap(cont)
-      // //     .should("not.be.empty")
-      // //     .and("have.text", "This field is required");
-      // // });
+      cy.get("input#address")
+        .clear({ force: true })
+        .type("Unknown Avenue 12", { force: true });
+
+      cy.get("button[type='submit']").click();
+      cy.wait(1000);
     });
   });
 });
