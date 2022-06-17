@@ -8,12 +8,13 @@ describe("Test Sign Up with various inputs", () => {
 
   beforeEach("Redirect to Application", () => {
     // Redirect to Application URL
-    cy.visit("https://node-fs-app.herokuapp.com/dashboard");
+    // cy.visit("https://node-fs-app.herokuapp.com/dashboard");
+    cy.visit(Cypress.config().baseUrl);
     // Go to Sign up page
     cy.get("nav #signup").click();
   });
 
-  it.skip("should sign up using all the form fields", () => {
+  it("should sign up using all the form fields", () => {
     let _name = "John Doe";
     let _email = "johndoe@example.com";
     let _password = "john's secure password";
@@ -41,7 +42,7 @@ describe("Test Sign Up with various inputs", () => {
     cy.get("nav").should("contain", "Logout");
   });
 
-  it.skip("should sign up using only some of the fields", () => {
+  it("should sign up using only some of the fields", () => {
     let _name = "Jane Doe";
     let _email = "janedoe@example.com";
     let _password = "jane's secure password";
@@ -60,7 +61,7 @@ describe("Test Sign Up with various inputs", () => {
     cy.get("nav").should("contain", "Logout");
   });
 
-  it.skip("should attempt to sign up using invalid email", () => {
+  it("should attempt to sign up using invalid email", () => {
     let _name = "George Lucas";
     let _email = "georgelucas#example.com";
     let _password = "lucasfilms";
@@ -123,50 +124,7 @@ describe("Test Sign Up with various inputs", () => {
       return name;
     }
 
-    let taskCounter = 0;
-    function addTask(
-      projectName,
-      taskSummary = "John's new task",
-      taskDescription = "New task for john's new project"
-    ) {
-      // let taskSummary = "John's new task";
-
-      // let taskDescription = "New task for john's new project";
-
-      taskSummary = `${taskSummary}${
-        taskCounter === 0 ? "" : " " + taskCounter
-      }`;
-
-      //#region ADD TASK
-      cy.contains(".card", projectName).within(() => {
-        cy.get("#btn_add_task").click();
-      });
-
-      // fill inputs
-      cy.get("#summary")
-        .clear({ force: true })
-        .type(taskSummary, { force: true });
-      cy.get("#description")
-        .clear({ force: true })
-        .type(taskDescription, { force: true });
-
-      cy.get(".select-wrapper").click();
-      cy.get(".dropdown-content.select-dropdown li").eq(0).click();
-      cy.get("#multiselectContainerReact").within(() => {
-        // click input
-        cy.get("#search_input").click();
-        cy.contains("li", "frontend").click();
-      });
-
-      cy.get("button[type='submit']").click();
-      // wait for 1 sec for the process to be completed
-      cy.wait(2000);
-
-      taskCounter++;
-      return taskSummary;
-    }
-
-    it.skip("should test project specific functions", () => {
+    it("should test project specific functions", () => {
       // #region CREATE PROJECT
       // fill project info
       let _projectName = "John's new project";
@@ -263,108 +221,64 @@ describe("Test Sign Up with various inputs", () => {
       cy.get("input#address").should("have.value", "Unknown Avenue 12");
     });
 
-    it("should test drag and drop to move tasks to different statuses", () => {
-      let projectName = createProject("Test Project for Drag and Drop");
-      let task1 = addTask(projectName);
-      cy.get("a#dashboard").click();
-      let task2 = addTask(projectName);
-      cy.get("a#dashboard").click();
-      let task3 = addTask(projectName);
-      cy.get("a#dashboard").click();
-      let task4 = addTask(projectName);
+    it.only("should test drag and drop to move tasks to different statuses", () => {
+      // let projectName = createProject("Test Project for Drag and Drop");
+      // let task1 = addTask(projectName);
+      // cy.get("a#dashboard").click();
+      // let task2 = addTask(projectName);
+      // cy.get("a#dashboard").click();
+      // let task3 = addTask(projectName);
+      // cy.get("a#dashboard").click();
+      // let task4 = addTask(projectName);
 
-      // let inProgressPos;
-      // cy.get("#in_progress_items").then(($inProgress) => {
-      //   inProgressPos = $inProgress.get(0).getBoundingClientRect();
-      //   console.log(inProgressPos);
-      //   cy.contains(".card", task1)
-      //     // .trigger("mousedown", { which: 1, button: 0 })
-      //     .trigger("mousedown", { button: 0 })
-      //     .trigger("pointerdown", { which: 1 })
-      //     .trigger(
-      //       "mousemove",
-      //       // {
-      //       //   clientX:
-      //       inProgressPos.left + (inProgressPos.right - inProgressPos.left) / 2,
-      //       // 0,
-      //       // clientY:
-      //       inProgressPos.top + (inProgressPos.bottom - inProgressPos.top) / 2,
-      //       // },
-      //       { force: true }
-      //     )
-      //     .trigger(
-      //       "pointermove",
-      //       // {
-      //       //   clientX:
-      //       inProgressPos.left + (inProgressPos.right - inProgressPos.left) / 2,
-      //       // 0,
-      //       // clientY:
-      //       inProgressPos.top + (inProgressPos.bottom - inProgressPos.top) / 2,
-      //       // },
-      //       { force: true }
-      //     )
-      //     .trigger("mouseup", { force: true })
-      //     .trigger("pointerup", { force: true });
-      // });
+      let projectName = "Test Project for Drag and Drop";
+      cy.contains(".card", projectName).within(() => {
+        cy.get("#btn_view_tasks").click();
+      });
 
-      const dataTransfer = new DataTransfer();
-      // // cy.contains(".card", task1).trigger("dragstart", { dataTransfer });
-      cy.get("[draggable='true']")
-        .first()
-        .trigger("dragstart", { dataTransfer });
-      cy.get("#in_progress_items")
-        .trigger("dragenter", { force: true, dataTransfer })
-        .trigger("dragover", { force: true, dataTransfer })
-        .trigger("drop", { force: true, dataTransfer })
-        .wait(50)
-        .trigger("dragend", { force: true, dataTransfer });
+      let id;
+      cy.intercept({ method: "PUT", path: "/api/tasks/" }, (req) => {
+        console.log(`ID: ${id}`);
+        req.url = `${req.url}${id}`;
+      }).as(`apiCall`);
 
-      // const draggable = Cypress.$('[draggable="true"]')[0]; // Pick up this
+      function dragDrop(dragSelector, dropSelector) {
+        const dataTransfer = new DataTransfer();
+        cy.get(dragSelector)
+          .trigger("dragstart", { dataTransfer: dataTransfer })
+          .then((ev) => {
+            console.log(ev);
+            id = ev.prop("id");
+          });
+        cy.get(dropSelector)
+          .trigger("dragenter", { force: true, dataTransfer: dataTransfer })
+          .trigger("dragover", { force: true, dataTransfer: dataTransfer })
+          .trigger("drop", { force: true, dataTransfer: dataTransfer })
+          .trigger("dragend", { force: true, dataTransfer: dataTransfer });
 
-      // cy.get("#in_progress_items").then(($el) => {
-      //   const droppable = $el; // Drop over this
-      //   const coords = droppable.getBoundingClientRect();
-      //   draggable.dispatchEvent(new MouseEvent("mousedown"));
-      //   draggable.dispatchEvent(
-      //     new MouseEvent("mousemove", { clientX: 10, clientY: 0 })
-      //   );
-      //   draggable.dispatchEvent(
-      //     new MouseEvent("mousemove", {
-      //       clientX: coords.x + 10,
-      //       clientY: coords.y + 10, // A few extra pixels to get the ordering right
-      //     })
-      //   );
-      //   draggable.dispatchEvent(new MouseEvent("mouseup"));
-      // });
+        cy.wait(`@apiCall`);
+      }
 
-      // // test drag
+      dragDrop("[draggable='true']:nth-child(4)", "#in_progress_items");
+      // validate column in progress has task 3
+      cy.get("#in_progress_items").within(() => {
+        cy.get(".card").should("have.length", 1).and("contain.text", "task 3");
+      });
 
-      // .trigger("dragstart", { dataTransfer });
-      // // .then((draggable) => {
-      // //   cy.wrap(draggable)
-      // //     .trigger("pointerdown", { dataTransfer })
-      // //     .trigger("mousedown", { dataTransfer })
-      // //     .trigger("dragstart", { dataTransfer });
-      // // });
-      // // cy.contains(".card", task1).trigger("dragstart", { dataTransfer });
-      // // cy.contains(".card", task1).trigger("dragstart", { dataTransfer });
+      dragDrop("[draggable='true']:nth-child(3)", "#in_review_items");
+      // validate column in review has task 2
+      cy.get("#in_review_items").within(() => {
+        cy.get(".card").should("have.length", 1).and("contain.text", "task 2");
+      });
 
-      // cy.get("#in_progress_items")
-      //   // .then((dropContainer) => {
-      //   //   cy.wrap(dropContainer)
-      //   //     .trigger("dragover", { dataTransfer })
-      //   //     .trigger("mousemove", { dataTransfer })
-      //   //     .trigger("pointermove", { dataTransfer });
-      //   //   cy.wait(10);
-      //   //   cy.wrap(dropContainer)
-      //   //     .trigger("drop", { dataTransfer })
-      //   //     .trigger("mouseup", { dataTransfer })
-      //   //     .trigger("pointerup", { dataTransfer });
-      //   // });
-      //   .trigger("drop", { dataTransfer });
+      dragDrop("[draggable='true']:nth-child(2)", "#done_items");
+      // validate column done has task 1
+      cy.get("#done_items").within(() => {
+        cy.get(".card").should("have.length", 1).and("contain.text", "task 1");
+      });
     });
 
-    it.only("should test TaskDB page", () => {
+    it("should test TaskDB page", () => {
       // navigate to TaskDB page
       cy.get("a#task_db").click();
 
@@ -404,5 +318,6 @@ describe("Test Sign Up with various inputs", () => {
 
       cy.get("input#address").should("have.value", "John's St. 15");
     });
+    // });
   });
 });
